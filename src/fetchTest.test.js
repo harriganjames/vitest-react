@@ -1,5 +1,6 @@
 import { setupServer } from "msw/node";
 import { HttpResponse, http } from "msw";
+import { expect } from "vitest";
 
 const server = setupServer();
 
@@ -10,10 +11,13 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 it("fetch test", async () => {
+  let receivingSize;
+
   server.use(
     http.post("http://localhost/api", async ({ request }) => {
       const data = await request.formData();
-      console.log("receiving size", data.get("file").size);
+      receivingSize = data.get("file").size;
+      console.log("receiving size", receivingSize);
       return HttpResponse.json();
     })
   );
@@ -24,12 +28,15 @@ it("fetch test", async () => {
     type: "application/json",
   });
   formData.append("file", blob);
-  console.log("sending size", formData.get("file").size);
+  const sendingSize = formData.get("file").size;
+  console.log("sending size", sendingSize);
 
   fetch("http://localhost/api", {
     method: "POST",
     body: formData,
   });
 
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  expect(receivingSize).toEqual(sendingSize);
 });
