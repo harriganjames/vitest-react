@@ -2,6 +2,8 @@ import { setupServer } from "msw/node";
 import { HttpResponse, http } from "msw";
 import { expect } from "vitest";
 
+// @vitest-environment node
+
 const server = setupServer();
 
 beforeAll(() => server.listen());
@@ -10,7 +12,7 @@ afterEach(() => server.resetHandlers());
 
 afterAll(() => server.close());
 
-it("fetch test", async () => {
+it("fetch test - node", async () => {
   let receivingSize;
 
   server.use(
